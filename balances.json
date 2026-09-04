@@ -1,0 +1,11 @@
+{
+  "Gauri Shankar Himalayan Construction Pvt.Ltd.": {
+    "closing_balance": "19,000.00 Dr",
+    "raw_balance": "-19000.00",
+    "opening_balance": "19,000.00 Dr",
+    "parent": "Bitumin Customer",
+    "tally_port": 9000,
+    "tally_host": "192.168.1.76",
+    "last_updated": "2026-09-03T21:10:37"
+  }
+}

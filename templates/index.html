@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tally Ledger Closing Balance Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-input: #ffffff;
+            --border-color: #e2e8f0;
+            --border-dark: #cbd5e1;
+            --accent-green: #059669;
+            --accent-green-hover: #047857;
+            --accent-glow: rgba(5, 150, 105, 0.15);
+            --accent-blue: #0284c7;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --danger: #dc2626;
+            --transition: all 0.2s ease-out;
+        }
+
+        /* ** ZERO BORDER RADIUS EVERYWHERE */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            border-radius: 0 !important;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* ** MAIN 2-COLUMN DASHBOARD GRID (COMPACT NO-SCROLL LAYOUT) */
+        .dashboard-grid {
+            width: 100%;
+            max-width: 1180px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* ** WHITE CARD STYLING WITH NO BORDER RADIUS */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 18px 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .card:hover {
+            border-color: var(--border-dark);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .card-step-badge {
+            background: #f1f5f9;
+            border: 1px solid var(--border-dark);
+            color: var(--text-secondary);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ** FORM INPUTS WITH ANIMATED UNDERLINE BORDER EFFECT */
+        .form-group {
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-dark);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        input:focus {
+            border-color: var(--accent-green);
+            background: #ffffff;
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+
+        /* Underline border animation line */
+        .input-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--accent-green);
+            transition: var(--transition);
+            transform: translateX(-50%);
+        }
+
+        .input-wrapper:focus-within::after {
+            width: 100%;
+        }
+
+        /* ** PRIMARY ACTION BUTTONS (NO RADIUS) */
+        .btn-primary {
+            width: 100%;
+            padding: 10px 16px;
+            margin-top: 4px;
+            border: none;
+            background: var(--accent-green);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-green-hover);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            border: 1px solid var(--border-dark);
+            color: var(--text-primary);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            color: #000000;
+        }
+
+        /* ** API GUIDE CARDS */
+        .api-guide-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .api-tag {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            background: #e0f2fe;
+            border: 1px solid #bae6fd;
+            padding: 2px 6px;
+            margin-bottom: 4px;
+        }
+
+        .api-url-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--accent-green);
+            word-break: break-all;
+            margin-top: 2px;
+            font-weight: 600;
+        }
+
+        /* ** LIVE RESULT DISPLAY BOX */
+        .result-container {
+            display: none;
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        .result-container.active {
+            display: block;
+        }
+
+        .balance-hero {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ledger-name-val {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .balance-amount-val {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--accent-green);
+            letter-spacing: -0.5px;
+            word-break: break-all;
+        }
+
+        .meta-grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .meta-pill {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
+        }
+
+        .meta-pill .m-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+
+        .meta-pill .m-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 1px;
+        }
+
+        /* JSON CODE BLOCK */
+        pre {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            padding: 12px;
+            color: #38bdf8;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            max-height: 160px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* ** FLOATING TOAST NOTIFICATION */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: #ffffff;
+            border: 2px solid var(--accent-green);
+            color: var(--text-primary);
+            padding: 10px 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transform: translateX(120%);
+            transition: var(--transition);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            border-color: var(--danger);
+            background: #fef2f2;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ** MAIN 2-COLUMN DASHBOARD LAYOUT (FITS FLUSH IN VIEWPORT) -->
+    <div class="dashboard-grid">
+        
+        <!-- ** LEFT COLUMN: TALLY SETTINGS & API INTEGRATION REFERENCE -->
+        <div class="column">
+            
+            <!-- STEP 1: CONNECTION SETTINGS -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Tally Connection Settings</span>
+                    <span class="card-step-badge">Step 1</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Tally Host (IP or "localhost")</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="host" placeholder="localhost" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Tally Port</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="port" placeholder="9000" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Company Name (as shown in Tally)</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="company" placeholder="e.g. Demo Company (or blank for active)" />
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="saveConfig()">Save Connection Settings</button>
+            </div>
+
+            <!-- API INTEGRATION REFERENCE CARD -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">API Integration Reference</span>
+                    <span class="card-step-badge">Reference</span>
+                </div>
+
+                <div class="api-guide-card">
+                    <div class="api-tag">Format 1: Standard URL</div>
+                    <div class="api-url-code">GET /closing-balance/{ledger_name}</div>
+                    <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">Connects to Tally on port 9000 (or client IP fallback).</div>
+                </div>
+
+                <div class="api-guide-card" style="margin-bottom: 0;">
+                    <div class="api-tag" style="color: var(--accent-green); background: #ecfdf5; border-color: #a7f3d0;">Format 2: Port Parameter Override</div>
+                    <div class="api-url-code" style="color: var(--accent-green);">GET /closing-balance/{ledger_name}?port=9001</div>
+                    <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">Connects directly to specified Tally port without config dependency.</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ** RIGHT COLUMN: CHECK LEDGER FORM & LIVE RESULT DISPLAY -->
+        <div class="column">
+
+            <!-- STEP 2: CHECK LEDGER BALANCE FORM (RIGHT SIDE) -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Check Ledger Balance</span>
+                    <span class="card-step-badge">Step 2</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Ledger Name</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="ledgerName" placeholder="e.g. Om Pandey, Sunita Pagal, ABC Traders" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Optional Tally Port Override</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="overridePort" placeholder="e.g. 9000 or 9001 (leave empty for default)" />
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="checkBalance()">Check Ledger Balance</button>
+            </div>
+
+            <!-- LIVE RESULT CARD -->
+            <div id="result" class="card result-container">
+                <div class="card-header">
+                    <span class="card-title">Balance Result</span>
+                    <button class="btn-secondary" onclick="copyApiResponse()">📋 Copy Response</button>
+                </div>
+
+                <div class="balance-hero">
+                    <div id="rLedger" class="ledger-name-val">Ledger Name</div>
+                    <div id="rBalance" class="balance-amount-val">0.00</div>
+                </div>
+
+                <div class="meta-grid-2col">
+                    <div class="meta-pill">
+                        <div class="m-label">Parent Group</div>
+                        <div id="rParent" class="m-value">N/A</div>
+                    </div>
+                    <div class="meta-pill">
+                        <div class="m-label">Tally Port & Host</div>
+                        <div id="rPortHost" class="m-value">9000</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 12px; margin-bottom: 6px; font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
+                    Raw JSON API Response
+                </div>
+                <pre id="rJson"></pre>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ** FLOATING TOAST NOTIFICATIONS -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script>
+        let lastApiResponseJson = "";
+
+        // ** LOAD SAVED CONFIG ON PAGE LOAD
+        window.onload = async () => {
+            try {
+                const res = await fetch('/config');
+                const cfg = await res.json();
+                document.getElementById('host').value = cfg.host || 'localhost';
+                document.getElementById('port').value = cfg.port || 9000;
+                document.getElementById('company').value = cfg.company || '';
+            } catch (e) {}
+        };
+
+        // ** SHOW TOAST NOTIFICATION
+        function showToast(message, isError = false) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            toast.innerHTML = `<span>${isError ? '⚠️' : '✅'}</span><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => container.removeChild(toast), 300);
+            }, 3500);
+        }
+
+        // ** SAVE CONFIGURATION
+        async function saveConfig() {
+            const host = document.getElementById('host').value.trim() || 'localhost';
+            const port = parseInt(document.getElementById('port').value.trim() || '9000');
+            const company = document.getElementById('company').value.trim();
+
+            try {
+                const res = await fetch('/config', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({host, port, company})
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('Connection settings saved successfully!');
+                } else {
+                    showToast(data.detail || 'Failed to save settings.', true);
+                }
+            } catch (e) {
+                showToast('Error saving settings: ' + e, true);
+            }
+        }
+
+        // ** CHECK LEDGER BALANCE
+        async function checkBalance() {
+            const name = document.getElementById('ledgerName').value.trim();
+            const overridePort = document.getElementById('overridePort').value.trim();
+            const savedPort = document.getElementById('port').value.trim();
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.remove('active');
+
+            if (!name) {
+                showToast('Please enter a ledger name.', true);
+                return;
+            }
+
+            try {
+                let apiUrl = `/closing-balance/${encodeURIComponent(name)}`;
+                const activePort = overridePort || savedPort;
+                if (activePort) {
+                    apiUrl += `?port=${encodeURIComponent(activePort)}`;
+                }
+
+                const res = await fetch(apiUrl);
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showToast(data.detail || 'Error fetching balance.', true);
+                    return;
+                }
+
+                document.getElementById('rLedger').innerText = data.ledger_name;
+                document.getElementById('rBalance').innerText = data.closing_balance;
+                document.getElementById('rParent').innerText = data.parent || 'N/A';
+                document.getElementById('rPortHost').innerText = `${data.tally_port || 9000} (${data.tally_host || 'localhost'})`;
+                
+                lastApiResponseJson = JSON.stringify(data, null, 2);
+                document.getElementById('rJson').innerText = lastApiResponseJson;
+
+                resultDiv.classList.add('active');
+                showToast(`Fetched balance for '${data.ledger_name}'!`);
+            } catch (e) {
+                showToast('Could not reach API: ' + e, true);
+            }
+        }
+
+        // ** COPY API RESPONSE
+        function copyApiResponse() {
+            if (!lastApiResponseJson) return;
+            navigator.clipboard.writeText(lastApiResponseJson).then(() => {
+                showToast('API Response copied to clipboard!');
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = lastApiResponseJson;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('API Response copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>
