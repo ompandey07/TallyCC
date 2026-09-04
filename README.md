@@ -8,6 +8,25 @@ A lightweight FastAPI service, native Desktop GUI application, and clean 2-colum
 
 ---
 
+## 📋 Prerequisites & Python Installation
+
+Before running the scripts or compiling `TallyCC.exe`, ensure Python is installed on your Windows machine:
+
+> [!NOTE]
+> **Bundled Python Installer Included:**  
+> If Python is not installed on your system, we have already included the offline Python installer inside this folder:  
+> 📁 **`.\Python 3.14.7\python-3.14.7-amd64.exe`**  
+> 
+> Simply double-click `.\Python 3.14.7\python-3.14.7-amd64.exe` to install Python, and make sure to check the box **"Add Python to PATH"** during setup!
+
+### Tally Configuration:
+1. Make sure **Tally Prime** (or Tally.ERP 9) is running.
+2. Verify Tally HTTP API port (Default is `9000` or `9001`):
+   - In Tally: Go to **F1: Help** -> **TDL & Add-On** -> **F4: Manage Local TDLs** / **Configure Tally.NET Services**.
+   - Ensure HTTP/XML interface is enabled.
+
+---
+
 ## 🚀 Standalone Executable (`TallyCC.exe`)
 
 You can run TallyCC as a **single standalone Windows executable (`TallyCC.exe`)**.
@@ -52,15 +71,6 @@ You can run TallyCC as a **single standalone Windows executable (`TallyCC.exe`)*
   1. **Standard Mode**: `GET /closing-balance/{ledger_name}` (uses saved host/port/company or client IP fallback).
   2. **Direct Parameter Mode**: `GET /closing-balance/{ledger_name}?port=9001` or `GET /api/balance?ledger_name=Sunita%20Pagal&port=9001`.
 - **Automatic Client IP Detection**: When called from another PC on the network, the backend automatically detects the remote client IP to query Tally on that PC.
-
----
-
-## 📋 Prerequisites & Tally Configuration
-
-1. Make sure **Tally Prime** (or Tally.ERP 9) is running.
-2. Verify Tally HTTP API port (Default is `9000` or `9001`):
-   - In Tally: Go to **F1: Help** -> **TDL & Add-On** -> **F4: Manage Local TDLs** / **Configure Tally.NET Services**.
-   - Ensure HTTP/XML interface is enabled.
 
 ---
 
